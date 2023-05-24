@@ -1,6 +1,7 @@
-import yaml
-from mpi4py import MPI
 import numpy as np
+import yaml
+from astromodels import Log_normal
+from mpi4py import MPI
 from threeML import BayesianAnalysis, FermipyLike
 
 from .model import Leptonic, LogParabola, Model
@@ -56,6 +57,15 @@ class Analysis:
             if not isinstance(obs.plugin, FermipyLike):
 
                 obs.plugin.assign_to_source(model.source_name)
+
+            else:
+
+                model.model.LAT_galdiff_Prefactor.prior = Log_normal(
+                    mu=0, sigma=0.05
+                )
+                model.model.LAT_isodiff_Normalization.prior = Log_normal(
+                    mu=0, sigma=0.05
+                )
 
     @property
     def ba(self) -> BayesianAnalysis:
