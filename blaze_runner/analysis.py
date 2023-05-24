@@ -51,11 +51,11 @@ class Analysis:
             if rank < size - 1:
                 comm.Isend(randNum, dest=rank + 1, tag=11)
 
-        for obs in data_set.fobservations:
+        for obs in data_set.observations:
 
-            if not isinstance(obs, FermipyLike):
+            if not isinstance(obs.plugin, FermipyLike):
 
-                obs.assign_to_source(model.source_name)
+                obs.plugin.assign_to_source(model.source_name)
 
     @property
     def ba(self) -> BayesianAnalysis:
