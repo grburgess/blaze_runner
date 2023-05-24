@@ -199,7 +199,7 @@ class DataSet:
 
                 raise RuntimeError(msg)
 
-            obs_class = _known_data_types[data]["class"]
+            obs_class = _known_data_types[data_type]["class"]
 
             data_container = _known_data_types[data_type]["container"](
                 name=name, **v
