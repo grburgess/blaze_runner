@@ -4,7 +4,7 @@ from typing import Any, List, Dict
 import numpy as np
 import yaml
 from mpi4py import MPI
-from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike
+from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike, silence_progress_bars
 from threeML.plugin_prototype import PluginPrototype
 from threeML.utils.photometry import get_photometric_filter_library
 from threeML.utils.photometry.photometric_observation import (
@@ -20,7 +20,7 @@ size = comm.Get_size()
 
 log = setup_logger(__name__)
 
-
+silence_progress_bars()
 threeML_filter_library = get_photometric_filter_library()
 
 
