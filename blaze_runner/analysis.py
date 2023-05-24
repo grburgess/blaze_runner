@@ -46,7 +46,7 @@ class Analysis:
             req = comm.Irecv(randNum, source=rank - 1, tag=11)
             req.Wait()
 
-            self._ba = BayesianAnalysis(model, data)
+            self._ba = BayesianAnalysis(model.model, data.data_list)
             log.info(f"rank {rank} FINISHED")
 
             if rank < size - 1:
