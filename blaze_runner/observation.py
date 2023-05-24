@@ -24,7 +24,7 @@ log = setup_logger(__name__)
 threeML_filter_library = get_photometric_filter_library()
 
 
-@dataclass
+@dataclass(frozen=True)
 class DataContainer:
     name: str
 
