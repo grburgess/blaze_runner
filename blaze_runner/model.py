@@ -22,7 +22,7 @@ from astropy.cosmology import Planck18 as cosmo
 from gdpyc import GasMap
 from netspec import EmulatorModel
 
-# from threeML import *
+
 from threeML.catalogs.Fermi import ModelFrom3FGL, silence_warnings
 
 from .utils.logging import setup_logger
@@ -180,7 +180,7 @@ class Leptonic(Model):
         self._spectrum.K.fix = True
         self._spectrum.K = factor
 
-        self._spectrum.redshift = z
+        self._spectrum.redshift = self._redshift
         self._spectrum.redshift.fix = True
 
         self._spectrum.log_B = -1.0
