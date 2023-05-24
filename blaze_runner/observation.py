@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
-from typing import Any, List
+from dataclasses import dataclass
+from typing import Any, List, Dict
 
 import numpy as np
 import yaml
 from mpi4py import MPI
-from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike
+from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike, silence_progress_bars
 from threeML.plugin_prototype import PluginPrototype
 from threeML.utils.photometry import get_photometric_filter_library
 from threeML.utils.photometry.photometric_observation import (
@@ -20,26 +20,11 @@ size = comm.Get_size()
 
 log = setup_logger(__name__)
 
-
+silence_progress_bars()
 threeML_filter_library = get_photometric_filter_library()
 
-_known_data_types = {
-    "xrt": {"class": XRTObservation, "container": XRayDataContainer},
-    "nustar": {"class": NuStarObservation, "container": XRayDataContainer},
-    "uvot": {"class": UVOTObservation, "container": PhotometericDataContainer},
-    "grond": {
-        "class": GRONDObservation,
-        "container": PhotometericDataContainer,
-    },
-    "lat": {"class": LATObservation, "container": LATDataContainer},
-}
 
-
-_photometric_types = ("uvot", "grond")
-_xray_types = ("nustar", "xrt")
-
-
-@dataclass
+@dataclass(frozen=True)
 class DataContainer:
     name: str
 
@@ -148,7 +133,7 @@ class NuStarObservation(XRayObservation):
 
 
 class PhotometricObservation(Observation):
-    def __init__(data_containter: PhotometricDataContainer, filter_set):
+    def __init__(self, data_containter: PhotometricDataContainer, filter_set):
 
         obs = PhotometericObservation.from_hdf5(data_containter.observation)
 
@@ -174,6 +159,18 @@ class GRONDObservation(PhotometricObservation):
         super().__init__(
             data_containter, filter_set=threeML_filter_library.LaSilla.GROND
         )
+
+
+_known_data_types = {
+    "xrt": {"class": XRTObservation, "container": XRayDataContainer},
+    "nustar": {"class": NuStarObservation, "container": XRayDataContainer},
+    "uvot": {"class": UVOTObservation, "container": PhotometricDataContainer},
+    "grond": {
+        "class": GRONDObservation,
+        "container": PhotometricDataContainer,
+    },
+    "lat": {"class": LATObservation, "container": LATDataContainer},
+}
 
 
 class DataSet:
@@ -202,7 +199,7 @@ class DataSet:
 
                 raise RuntimeError(msg)
 
-            obs_class = _known_data_types[data]["class"]
+            obs_class = _known_data_types[data_type]["class"]
 
             data_container = _known_data_types[data_type]["container"](
                 name=name, **v

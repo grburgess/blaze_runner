@@ -1,37 +1,31 @@
 from typing import Optional
+
 import astromodels
-import astropy.units as u
-from astropy.cosmology import Planck18 as cosmo
-
 import astropy.coordinates as coords
-
+import astropy.units as u
+import numpy as np
+from astro_custom import TbAbsCut
+from astromodels import (
+    Constant,
+    Function1D,
+    Gaussian,
+    Line,
+    Log_parabola,
+    Log_uniform_prior,
+    PointSource,
+    Truncated_gaussian,
+    Uniform_prior,
+    ZDust,
+    load_model,
+)
+from astropy.cosmology import Planck18 as cosmo
 from gdpyc import GasMap
-
-# from threeML import *
-from threeML.catalogs.Fermi import ModelFrom3FGL, silence_warnings
-
 from netspec import EmulatorModel
 
 
-from astromodels import (
-    Function1D,
-    PointSource,
-    ZDust,
-    Log_parabola,
-    Log_uniform_prior,
-    Uniform_prior,
-    Gaussian,
-    Truncated_gaussian,
-    Line,
-    Constant,
-    load_model,
-)
-
-from astro_custom import TbAbsCut
-
+from threeML.catalogs.Fermi import ModelFrom3FGL, silence_warnings
 
 from .utils.logging import setup_logger
-
 
 log = setup_logger(__name__)
 
@@ -63,6 +57,8 @@ class Model:
         self._lat_model: Optional[str] = lat_model
         self._model: Optional[astromodels.Model] = None
         self._lat_source: Optional[str] = lat_source
+
+        self._model_setup()
 
     def _model_setup(self) -> None:
 
@@ -128,9 +124,7 @@ class Model:
 
         self._mw_gas.NH.fix = False
 
-        self._mw_gas.NH.prior = Gaussian(
-            mu=mw_gas.NH.value, sigma=np.abs(mw_gas.NH.value * 0.05)
-        )
+        self._mw_gas.NH.prior = Gaussian(mu=mw_nh, sigma=np.abs(mw_nh * 0.05))
 
         self._z_dust = ZDust(e_bmv=0.18)
 
@@ -188,7 +182,7 @@ class Leptonic(Model):
         self._spectrum.K.fix = True
         self._spectrum.K = factor
 
-        self._spectrum.redshift = z
+        self._spectrum.redshift = self._redshift
         self._spectrum.redshift.fix = True
 
         self._spectrum.log_B = -1.0
@@ -214,7 +208,9 @@ class Leptonic(Model):
 
     def _model_linking(self) -> None:
 
-        scale_func = Line(a=1, b=0) / (1 + self._redshift)
+        scale_func = Line(a=0, b=1) / (1 + self._redshift)
+        scale_func.b_1.fix = True
+        scale_func.a_1.fix = True
 
         max_gamma_max = 7
 
@@ -229,14 +225,20 @@ class Leptonic(Model):
         func.b_2.fix = True
 
         self._model.link(
-            model[f"{self._source_name}.spectrum.main.shape"].scale_3,
-            model[f"{self._source_name}.spectrum.main.shape"].lorentz_factor_3,
+            self._model[f"{self._source_name}"].spectrum.main.shape.scale_3,
+            self._model[
+                f"{self._source_name}"
+            ].spectrum.main.shape.lorentz_factor_3,
             link_function=scale_func,
         )
 
         self._model.link(
-            model[f"{self._source_name}.spectrum.main.shape"].log_gamma_max_3,
-            model[f"{self._source_name}.spectrum.main.shape"].log_gamma_min_3,
+            self._model[
+                f"{self._source_name}"
+            ].spectrum.main.shape.log_gamma_max_3,
+            self._model[
+                f"{self._source_name}"
+            ].spectrum.main.shape.log_gamma_min_3,
             link_function=func,
         )
 

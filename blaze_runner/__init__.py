@@ -11,6 +11,7 @@ from .utils.logging import update_logging_level, activate_warnings, silence_warn
 
 from .model import Leptonic, LogParabola
 from .observation import DataSet
+from .analysis import Analysis
 
 
 from . import _version

@@ -1,6 +1,7 @@
-import yaml
-from mpi4py import MPI
 import numpy as np
+import yaml
+from astromodels import Log_normal
+from mpi4py import MPI
 from threeML import BayesianAnalysis, FermipyLike
 
 from .model import Leptonic, LogParabola, Model
@@ -21,7 +22,8 @@ _available_models = {"leptonic": Leptonic, "logparabola": LogParabola}
 class Analysis:
     def __init__(self, model: Model, data_set: DataSet) -> None:
 
-        """TODO describe function
+        """
+        creates an analysis from a data set and a model
 
         :param model:
         :type model: Model
@@ -45,17 +47,26 @@ class Analysis:
             req = comm.Irecv(randNum, source=rank - 1, tag=11)
             req.Wait()
 
-            self._ba = BayesianAnalysis(model, data)
+            self._ba = BayesianAnalysis(model.model, data_set.data_list)
             log.info(f"rank {rank} FINISHED")
 
             if rank < size - 1:
                 comm.Isend(randNum, dest=rank + 1, tag=11)
 
-        for obs in data_set.fobservations:
+        for obs in data_set.observations:
 
-            if not isinstance(obs, FermipyLike):
+            if not isinstance(obs.plugin, FermipyLike):
 
-                obs.assign_to_source(model.source_name)
+                obs.plugin.assign_to_source(model.source_name)
+
+            else:
+
+                model.model[
+                    f"{obs.plugin.name}_galdiff_Prefactor"
+                ].prior = Log_normal(mu=0, sigma=0.05)
+                model.model[
+                    f"{obs.plugin.name}_isodiff_Normalization"
+                ].prior = Log_normal(mu=0, sigma=0.05)
 
     @property
     def ba(self) -> BayesianAnalysis:
