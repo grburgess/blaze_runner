@@ -60,12 +60,12 @@ class Analysis:
 
             else:
 
-                model.model.LAT_galdiff_Prefactor.prior = Log_normal(
-                    mu=0, sigma=0.05
-                )
-                model.model.LAT_isodiff_Normalization.prior = Log_normal(
-                    mu=0, sigma=0.05
-                )
+                model.model[
+                    f"{obs.plugin.name}_galdiff_Prefactor"
+                ].prior = Log_normal(mu=0, sigma=0.05)
+                model.model[
+                    f"{obs.plugin.name}_isodiff_Normalization"
+                ].prior = Log_normal(mu=0, sigma=0.05)
 
     @property
     def ba(self) -> BayesianAnalysis:
