@@ -58,6 +58,8 @@ class Model:
         self._model: Optional[astromodels.Model] = None
         self._lat_source: Optional[str] = lat_source
 
+        self._model_setup()
+
     def _model_setup(self) -> None:
 
         if self._lat_model is None:
