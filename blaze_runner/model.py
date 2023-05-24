@@ -45,7 +45,7 @@ class Model:
         redshift: float,
         ra: float,
         dec: float,
-        model: Optional[astromodels.Model] = None,
+        lat_model: Optional[str] = None,
         lat_source: Optional[str] = None,
     ) -> None:
 
@@ -59,12 +59,13 @@ class Model:
         self._create_gas_model()
         self._create_spectrum()
 
-        self._model: Optional[astromodels.Model] = model
+        self._lat_model: Optional[str] = lat_model
+        self._model: Optional[astromodels.Model] = None
         self._lat_source: Optional[str] = lat_source
 
     def _model_setup(self) -> None:
 
-        if self._model is None:
+        if self._lat_model is None:
 
             log.info(
                 "no LAT model found, assuming this is only for one point source"
@@ -76,7 +77,16 @@ class Model:
 
             log.info(f"using LAT model for {self._lat_source}")
 
-            for k, v in model.point_sources.items():
+            tmp = load_model("pks_lat_model.yml")
+            sources = list(tmp.point_sources.values())
+
+            self._model = ModelFrom3FGL(self._ra, self._dec, *sources)
+
+            self._model.free_point_sources_within_radius(
+                3.0, normalization_only=True
+            )
+
+            for _, v in self._model.point_sources.items():
                 if v.has_free_parameters:
                     for _, par in v.free_parameters.items():
                         if "K" in par.name:
@@ -157,10 +167,10 @@ class Leptonic(Model):
         redshift: float,
         ra: float,
         dec: float,
-        model: Optional[astromodels.Model] = None,
+        lat_model: Optional[str] = None,
         lat_source: Optional[str] = None,
     ) -> None:
-        super().__init__(source_name, redshift, ra, dec, model, lat_source)
+        super().__init__(source_name, redshift, ra, dec, lat_model, lat_source)
 
     def _create_spectrum(self) -> None:
 
@@ -233,10 +243,10 @@ class LogParabola(Model):
         redshift: float,
         ra: float,
         dec: float,
-        model: Optional[astromodels.Model] = None,
+        lat_model: Optional[str] = None,
         lat_source: Optional[str] = None,
     ) -> None:
-        super().__init__(source_name, redshift, ra, dec, model, lat_source)
+        super().__init__(source_name, redshift, ra, dec, lat_model, lat_source)
 
     def _create_spectrum(self) -> None:
 

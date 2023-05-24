@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any, List
 import yaml
 from threeML import OGIPLike, PhotometryLike, DataList
 from threeML.utils.photometry import get_photometric_filter_library
@@ -126,7 +126,7 @@ class DataSet:
         self._observations: List[Observation] = observations
 
     @classmethod
-    def from_dict(cls, d: Dict) -> "DataSet":
+    def from_dict(cls, d: Dict[str, Any]) -> "DataSet":
 
         # collect observations
 
