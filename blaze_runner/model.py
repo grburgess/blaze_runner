@@ -129,7 +129,7 @@ class Model:
         self._mw_gas.NH.fix = False
 
         self._mw_gas.NH.prior = Gaussian(
-            mu=mw_gas.NH.value, sigma=np.abs(mw_gas.NH.value * 0.05)
+            mu=mw_nh, sigma=np.abs(mw_nh * 0.05)
         )
 
         self._z_dust = ZDust(e_bmv=0.18)
