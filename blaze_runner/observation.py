@@ -23,21 +23,6 @@ log = setup_logger(__name__)
 
 threeML_filter_library = get_photometric_filter_library()
 
-_known_data_types = {
-    "xrt": {"class": XRTObservation, "container": XRayDataContainer},
-    "nustar": {"class": NuStarObservation, "container": XRayDataContainer},
-    "uvot": {"class": UVOTObservation, "container": PhotometericDataContainer},
-    "grond": {
-        "class": GRONDObservation,
-        "container": PhotometericDataContainer,
-    },
-    "lat": {"class": LATObservation, "container": LATDataContainer},
-}
-
-
-_photometric_types = ("uvot", "grond")
-_xray_types = ("nustar", "xrt")
-
 
 @dataclass
 class DataContainer:
@@ -148,7 +133,7 @@ class NuStarObservation(XRayObservation):
 
 
 class PhotometricObservation(Observation):
-    def __init__(data_containter: PhotometricDataContainer, filter_set):
+    def __init__(self, data_containter: PhotometricDataContainer, filter_set):
 
         obs = PhotometericObservation.from_hdf5(data_containter.observation)
 
@@ -174,6 +159,18 @@ class GRONDObservation(PhotometricObservation):
         super().__init__(
             data_containter, filter_set=threeML_filter_library.LaSilla.GROND
         )
+
+
+_known_data_types = {
+    "xrt": {"class": XRTObservation, "container": XRayDataContainer},
+    "nustar": {"class": NuStarObservation, "container": XRayDataContainer},
+    "uvot": {"class": UVOTObservation, "container": PhotometricDataContainer},
+    "grond": {
+        "class": GRONDObservation,
+        "container": PhotometricDataContainer,
+    },
+    "lat": {"class": LATObservation, "container": LATDataContainer},
+}
 
 
 class DataSet:
