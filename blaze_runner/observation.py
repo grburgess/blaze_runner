@@ -1,15 +1,21 @@
 from dataclasses import dataclass, field
 from typing import Any, List
+
+import numpy as np
 import yaml
-from threeML import OGIPLike, PhotometryLike, DataList
+from mpi4py import MPI
+from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike
+from threeML.plugin_prototype import PluginPrototype
 from threeML.utils.photometry import get_photometric_filter_library
 from threeML.utils.photometry.photometric_observation import (
     PhotometericObservation,
 )
-from threeML.plugin_prototype import PluginPrototype
-
 
 from .utils.logging import setup_logger
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
 
 
 log = setup_logger(__name__)
@@ -25,6 +31,7 @@ _known_data_types = {
         "class": GRONDObservation,
         "container": PhotometericDataContainer,
     },
+    "lat": {"class": LATObservation, "container": LATDataContainer},
 }
 
 
@@ -53,13 +60,61 @@ class PhotometricDataContainer(DataContainer):
 
 @dataclass(frozen=True)
 class LATDataContainer(DataContainer):
-    pass
+    evfile: str
+    scfile: str
+    ra: float
+    dec: float
 
 
 class Observation:
     def __init__(self, plugin: PluginPrototype):
 
         self._plugin: PluginPrototype = plugin
+
+    @property
+    def plugin(self) -> PluginPrototype:
+        return self._plugin
+
+
+class LATObservation(Observation):
+    def __init__(self, data_container: LATDataContainer):
+
+        config = FermipyLike.get_basic_config(
+            evfile=data_container.evfile,
+            scfile=data_container.scfile,
+            ra=data_container.ra,
+            dec=data_container.dec,
+            fermipy_verbosity=1,
+            fermitools_chatter=0,
+        )
+
+        config["gtlike"] = {
+            "edisp": True,
+            "edisp_disable": ["isodiff", "galdiff"],
+        }
+        config["selection"]["emax"] = 300000
+
+        randNum = np.zeros(1)
+
+        if rank == 0:
+            plugin = FermipyLike(data_container.name, config)
+
+            if size > 1:
+                comm.Isend(randNum, dest=1, tag=12)
+                log.info(f"rank {rank} is sending ")
+
+        else:
+            log.info(f"rank {rank} is waiting")
+            req = comm.Irecv(randNum, source=rank - 1, tag=12)
+            req.Wait()
+            plugin = FermipyLike(data_container.name, config)
+
+            log.info(f"rank {rank} is finished")
+
+            if rank < size - 1:
+                comm.Isend(randNum, dest=rank + 1, tag=12)
+
+        super().__init__(plugin)
 
 
 class XRayObservation(Observation):
@@ -77,6 +132,7 @@ class XRayObservation(Observation):
 
         plugin.set_active_measurements(f"{e_min}-{e_max}")
         plugin.rebin_on_background(1)
+        plugin.model_integrate_method = "riemann"
 
         super().__init__(plugin=plugin)
 
@@ -132,21 +188,25 @@ class DataSet:
 
         observations = []
 
-        for k, v in d.items():
+        for name, v in d.items():
 
             # get the observation
 
-            if k not in _known_data_types:
+            data_type = v.pop("type")
 
-                msg = f"{k} is not a known data type from {_known_data_types.keys()}"
+            if data_type not in _known_data_types:
+
+                msg = f"{data_type} is not a known data type from {_known_data_types.keys()}"
 
                 log.error(msg)
 
                 raise RuntimeError(msg)
 
-            obs_class = _known_data_types[k]["class"]
+            obs_class = _known_data_types[data]["class"]
 
-            data_container = _known_data_types[k]["container"](**v)
+            data_container = _known_data_types[data_type]["container"](
+                name=name, **v
+            )
 
             observations.append(obs_class(data_container))
 
@@ -156,5 +216,9 @@ class DataSet:
         pass
 
     @property
+    def observations(self) -> List[Observation]:
+        return self._observations
+
+    @property
     def data_list(self) -> DataList:
-        return DataList(*self._observations)
+        return DataList(*[o.plugin for o in self._observations])

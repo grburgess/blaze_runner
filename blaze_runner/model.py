@@ -24,6 +24,7 @@ from astromodels import (
     Truncated_gaussian,
     Line,
     Constant,
+    load_model,
 )
 
 from astro_custom import TbAbsCut
@@ -104,6 +105,10 @@ class Model:
             self._model.add_source(self.point_source)
 
         self._model_linking()
+
+    @property
+    def source_name(self) -> str:
+        return self._source_name
 
     def _model_linking(self) -> None:
         pass
