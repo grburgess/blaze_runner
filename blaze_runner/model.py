@@ -209,6 +209,8 @@ class Leptonic(Model):
     def _model_linking(self) -> None:
 
         scale_func = Line(a=1, b=0) / (1 + self._redshift)
+        scale_func.b_1.fix = True
+        scale_func.a_1.fix = True
 
         max_gamma_max = 7
 
