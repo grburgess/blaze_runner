@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Any, List
+from dataclasses import dataclass
+from typing import Any, List, Dict
 
 import numpy as np
 import yaml
