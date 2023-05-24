@@ -22,7 +22,8 @@ _available_models = {"leptonic": Leptonic, "logparabola": LogParabola}
 class Analysis:
     def __init__(self, model: Model, data_set: DataSet) -> None:
 
-        """TODO describe function
+        """
+        creates an analysis from a data set and a model
 
         :param model:
         :type model: Model
