@@ -43,7 +43,6 @@ class Model:
         lat_model: Optional[str] = None,
         lat_source: Optional[str] = None,
     ) -> None:
-
         self._source_name: str = source_name
         self._redshift: float = redshift
         self._ra: float = ra
@@ -61,9 +60,7 @@ class Model:
         self._model_setup()
 
     def _model_setup(self) -> None:
-
         if self._lat_model is None:
-
             log.info(
                 "no LAT model found, assuming this is only for one point source"
             )
@@ -71,7 +68,6 @@ class Model:
             self._model = astromodels.Model(self.point_source)
 
         else:
-
             log.info(f"using LAT model for {self._lat_source}")
 
             tmp = load_model("pks_lat_model.yml")
@@ -113,7 +109,6 @@ class Model:
         pass
 
     def _create_gas_model(self) -> None:
-
         c = coords.SkyCoord(
             ra=self._ra, dec=self._dec, unit="deg", frame="icrs"
         )
@@ -138,9 +133,7 @@ class Model:
 
     @property
     def point_source(self) -> PointSource:
-
         if self._spectrum is None:
-
             msg = "no spectrum has been created!"
 
             log.error(msg)
@@ -172,7 +165,6 @@ class Leptonic(Model):
         super().__init__(source_name, redshift, ra, dec, lat_model, lat_source)
 
     def _create_spectrum(self) -> None:
-
         factor = (1 + self._redshift) / (
             4 * np.pi * cosmo.luminosity_distance(self._redshift).to("cm") ** 2
         ).value
@@ -207,7 +199,6 @@ class Leptonic(Model):
         )
 
     def _model_linking(self) -> None:
-
         scale_func = Line(a=0, b=1) / (1 + self._redshift)
         scale_func.b_1.fix = True
         scale_func.a_1.fix = True
@@ -256,7 +247,6 @@ class LogParabola(Model):
         super().__init__(source_name, redshift, ra, dec, lat_model, lat_source)
 
     def _create_spectrum(self) -> None:
-
         lpl_low = Log_parabola(K=1e-3)
 
         lpl_low.K.prior = Log_uniform_prior(lower_bound=1e-5, upper_bound=1e0)

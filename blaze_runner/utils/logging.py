@@ -86,7 +86,10 @@ _console_formatter = logging.Formatter(
 
 
 blaze_runner_console_log_handler = RichHandler(
-    level=blaze_runner_config.logging.level, rich_tracebacks=True, markup=True, console=console
+    level=blaze_runner_config.logging.level,
+    rich_tracebacks=True,
+    markup=True,
+    console=console,
 )
 blaze_runner_console_log_handler.setFormatter(_console_formatter)
 
@@ -113,12 +116,10 @@ def activate_warnings():
 
 
 def update_logging_level(level):
-
     blaze_runner_console_log_handler.setLevel(level)
 
 
 def setup_logger(name):
-
     # A logger with name name will be created
     # and then add it to the print stream
     log = logging.getLogger(name)

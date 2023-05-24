@@ -7,7 +7,11 @@ __email__ = 'jburgess@mpe.mpg.de'
 
 
 from .utils.configuration import blaze_runner_config, show_configuration
-from .utils.logging import update_logging_level, activate_warnings, silence_warnings
+from .utils.logging import (
+    update_logging_level,
+    activate_warnings,
+    silence_warnings,
+)
 
 from .model import Leptonic, LogParabola
 from .observation import DataSet
@@ -15,4 +19,5 @@ from .analysis import Analysis
 
 
 from . import _version
+
 __version__ = _version.get_versions()['version']

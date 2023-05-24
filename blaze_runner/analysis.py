@@ -21,7 +21,6 @@ _available_models = {"leptonic": Leptonic, "logparabola": LogParabola}
 
 class Analysis:
     def __init__(self, model: Model, data_set: DataSet) -> None:
-
         """
         creates an analysis from a data set and a model
 
@@ -54,13 +53,10 @@ class Analysis:
                 comm.Isend(randNum, dest=rank + 1, tag=11)
 
         for obs in data_set.observations:
-
             if not isinstance(obs.plugin, FermipyLike):
-
                 obs.plugin.assign_to_source(model.source_name)
 
             else:
-
                 model.model[
                     f"{obs.plugin.name}_galdiff_Prefactor"
                 ].prior = Log_normal(mu=0, sigma=0.05)
@@ -74,9 +70,7 @@ class Analysis:
 
     @classmethod
     def from_file(cls, file_name: str) -> "Analysis":
-
         with open(file_name, "r") as f:
-
             data = yaml.load(f, Loader=yaml.SafeLoader)
 
         data_set = DataSet.from_dict(data["data"])
