@@ -1,37 +1,31 @@
 from typing import Optional
+
 import astromodels
-import astropy.units as u
-from astropy.cosmology import Planck18 as cosmo
-
 import astropy.coordinates as coords
-
+import astropy.units as u
+import numpy as np
+from astro_custom import TbAbsCut
+from astromodels import (
+    Constant,
+    Function1D,
+    Gaussian,
+    Line,
+    Log_parabola,
+    Log_uniform_prior,
+    PointSource,
+    Truncated_gaussian,
+    Uniform_prior,
+    ZDust,
+    load_model,
+)
+from astropy.cosmology import Planck18 as cosmo
 from gdpyc import GasMap
+from netspec import EmulatorModel
 
 # from threeML import *
 from threeML.catalogs.Fermi import ModelFrom3FGL, silence_warnings
 
-from netspec import EmulatorModel
-
-
-from astromodels import (
-    Function1D,
-    PointSource,
-    ZDust,
-    Log_parabola,
-    Log_uniform_prior,
-    Uniform_prior,
-    Gaussian,
-    Truncated_gaussian,
-    Line,
-    Constant,
-    load_model,
-)
-
-from astro_custom import TbAbsCut
-
-
 from .utils.logging import setup_logger
-
 
 log = setup_logger(__name__)
 
@@ -128,9 +122,7 @@ class Model:
 
         self._mw_gas.NH.fix = False
 
-        self._mw_gas.NH.prior = Gaussian(
-            mu=mw_nh, sigma=np.abs(mw_nh * 0.05)
-        )
+        self._mw_gas.NH.prior = Gaussian(mu=mw_nh, sigma=np.abs(mw_nh * 0.05))
 
         self._z_dust = ZDust(e_bmv=0.18)
 
