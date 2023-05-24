@@ -223,14 +223,20 @@ class Leptonic(Model):
         func.b_2.fix = True
 
         self._model.link(
-            model[f"{self._source_name}.spectrum.main.shape"].scale_3,
-            model[f"{self._source_name}.spectrum.main.shape"].lorentz_factor_3,
+            self._model[f"{self._source_name}.spectrum.main.shape"].scale_3,
+            self._model[
+                f"{self._source_name}.spectrum.main.shape"
+            ].lorentz_factor_3,
             link_function=scale_func,
         )
 
         self._model.link(
-            model[f"{self._source_name}.spectrum.main.shape"].log_gamma_max_3,
-            model[f"{self._source_name}.spectrum.main.shape"].log_gamma_min_3,
+            self._model[
+                f"{self._source_name}.spectrum.main.shape"
+            ].log_gamma_max_3,
+            self._model[
+                f"{self._source_name}.spectrum.main.shape"
+            ].log_gamma_min_3,
             link_function=func,
         )
 
