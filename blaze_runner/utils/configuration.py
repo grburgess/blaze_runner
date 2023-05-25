@@ -19,26 +19,22 @@ _config_file = _config_path / _config_name
 
 @dataclass
 class Logging:
-
     on: bool = True
     level: str = "WARNING"
 
 
-
-
 @dataclass
 class blaze_runnerConfig:
-
-    logging: Logging = field(default_factory = Logging)
-
+    logging: Logging = field(default_factory=Logging)
 
 
 # Read the default config
-blaze_runner_config: blaze_runnerConfig = OmegaConf.structured(blaze_runnerConfig)
+blaze_runner_config: blaze_runnerConfig = OmegaConf.structured(
+    blaze_runnerConfig
+)
 
 # Merge with local config if it exists
 if _config_file.is_file():
-
     _local_config = OmegaConf.load(_config_file)
 
     blaze_runner_config: blaze_runnerConfig = OmegaConf.merge(
@@ -47,21 +43,16 @@ if _config_file.is_file():
 
 # Write defaults if not
 else:
-
     # Make directory if needed
     _config_path.mkdir(parents=True, exist_ok=True)
 
     with _config_file.open("w") as f:
-
         OmegaConf.save(config=blaze_runner_config, f=f.name)
 
 
 def recurse_dict(d, tree) -> None:
-
     for k, v in d.items():
-
         if (type(v) == dict) or isinstance(v, DictConfig):
-
             branch = tree.add(
                 k, guide_style="bold medium_orchid", style="bold medium_orchid"
             )
@@ -69,7 +60,6 @@ def recurse_dict(d, tree) -> None:
             recurse_dict(v, branch)
 
         else:
-
             tree.add(
                 f"{k}: [blink cornflower_blue]{v}",
                 guide_style="medium_spring_green",
@@ -80,7 +70,6 @@ def recurse_dict(d, tree) -> None:
 
 
 def show_configuration() -> None:
-
     tree = Tree(
         "config", guide_style="bold medium_orchid", style="bold medium_orchid"
     )

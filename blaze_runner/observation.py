@@ -4,7 +4,13 @@ from typing import Any, List, Dict
 import numpy as np
 import yaml
 from mpi4py import MPI
-from threeML import DataList, FermipyLike, OGIPLike, PhotometryLike, silence_progress_bars
+from threeML import (
+    DataList,
+    FermipyLike,
+    OGIPLike,
+    PhotometryLike,
+    silence_progress_bars,
+)
 from threeML.plugin_prototype import PluginPrototype
 from threeML.utils.photometry import get_photometric_filter_library
 from threeML.utils.photometry.photometric_observation import (
@@ -31,7 +37,6 @@ class DataContainer:
 
 @dataclass(frozen=True)
 class XRayDataContainer(DataContainer):
-
     observation: str
     background: str
     response: str
@@ -53,7 +58,6 @@ class LATDataContainer(DataContainer):
 
 class Observation:
     def __init__(self, plugin: PluginPrototype):
-
         self._plugin: PluginPrototype = plugin
 
     @property
@@ -63,7 +67,6 @@ class Observation:
 
 class LATObservation(Observation):
     def __init__(self, data_container: LATDataContainer):
-
         config = FermipyLike.get_basic_config(
             evfile=data_container.evfile,
             scfile=data_container.scfile,
@@ -106,7 +109,6 @@ class XRayObservation(Observation):
     def __init__(
         self, data_containter: XRayDataContainer, e_min: float, e_max: float
     ):
-
         plugin: OGIPLike = OGIPLike(
             data_containter.name,
             observation=data_containter.observation,
@@ -134,7 +136,6 @@ class NuStarObservation(XRayObservation):
 
 class PhotometricObservation(Observation):
     def __init__(self, data_containter: PhotometricDataContainer, filter_set):
-
         obs = PhotometericObservation.from_hdf5(data_containter.observation)
 
         plugin = PhotometryLike(
@@ -148,7 +149,6 @@ class PhotometricObservation(Observation):
 
 class UVOTObservation(PhotometricObservation):
     def __init__(self, data_containter: PhotometricDataContainer):
-
         super().__init__(
             data_containter, filter_set=threeML_filter_library.Swift.UVOT
         )
@@ -175,24 +175,20 @@ _known_data_types = {
 
 class DataSet:
     def __init__(self, observations: List[Observation]) -> None:
-
         self._observations: List[Observation] = observations
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "DataSet":
-
         # collect observations
 
         observations = []
 
         for name, v in d.items():
-
             # get the observation
 
             data_type = v.pop("type")
 
             if data_type not in _known_data_types:
-
                 msg = f"{data_type} is not a known data type from {_known_data_types.keys()}"
 
                 log.error(msg)

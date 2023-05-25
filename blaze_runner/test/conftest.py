@@ -8,7 +8,6 @@ import pytest
 from blaze_runner.utils.package_data import get_path_of_data_file
 
 
-
 @pytest.fixture(scope="session")
 def thing():
     pass
