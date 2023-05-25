@@ -193,7 +193,7 @@ class Leptonic(Model):
 
         self._spectrum.log_radius.set_uninformative_prior(Uniform_prior)
         self._spectrum.log_B.set_uninformative_prior(Uniform_prior)
-        self._spectrum.lorentz_factor.set_uninformative_prior(Uniform_prior)
+        self._spectrum.lorentz_factor.set_uninformative_prior(Log_uniform_prior)
         self._spectrum.spectral_index.prior = Truncated_gaussian(
             mu=3, sigma=0.5, lower_bound=2, upper_bound=4
         )
