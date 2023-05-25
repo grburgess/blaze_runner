@@ -180,8 +180,11 @@ class Leptonic(Model):
         self._spectrum.log_B = -1.0
         self._spectrum.log_electron_luminosity = 44.0
 
-        self._spectrum.log_electron_luminosity.prior = Truncated_gaussian(
-            mu=44, sigma=1, lower_bound=42, upper_bound=46
+        # self._spectrum.log_electron_luminosity.prior = Truncated_gaussian(
+        #     mu=44, sigma=1, lower_bound=42, upper_bound=46
+        # )
+
+        self._spectrum.log_electron_luminosity.set_uninformative_prior(Uniform_prior)
         )
         self._spectrum.log_gamma_max.set_uninformative_prior(Uniform_prior)
 
