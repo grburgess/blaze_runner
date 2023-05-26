@@ -70,7 +70,7 @@ class Model:
         else:
             log.info(f"using LAT model for {self._lat_source}")
 
-            tmp = load_model("pks_lat_model.yml")
+            tmp = load_model(self._lat_model)
             sources = list(tmp.point_sources.values())
 
             self._model = ModelFrom3FGL(self._ra, self._dec, *sources)
