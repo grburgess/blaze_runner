@@ -57,7 +57,7 @@ class LATDataContainer(DataContainer):
 
 
 class Observation:
-    def __init__(self, plugin: PluginPrototype):
+    def __init__(self, plugin: PluginPrototype) -> None:
         self._plugin: PluginPrototype = plugin
 
     @property
@@ -66,7 +66,7 @@ class Observation:
 
 
 class LATObservation(Observation):
-    def __init__(self, data_container: LATDataContainer):
+    def __init__(self, data_container: LATDataContainer) -> None:
         config = FermipyLike.get_basic_config(
             evfile=data_container.evfile,
             scfile=data_container.scfile,
@@ -108,7 +108,19 @@ class LATObservation(Observation):
 class XRayObservation(Observation):
     def __init__(
         self, data_containter: XRayDataContainer, e_min: float, e_max: float
-    ):
+    ) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: XRayDataContainer
+        :param e_min:
+        :type e_min: float
+        :param e_max:
+        :type e_max: float
+        :returns:
+
+        """
+
         plugin: OGIPLike = OGIPLike(
             data_containter.name,
             observation=data_containter.observation,
@@ -125,17 +137,41 @@ class XRayObservation(Observation):
 
 
 class XRTObservation(XRayObservation):
-    def __init__(self, data_containter: XRayDataContainer):
+    def __init__(self, data_containter: XRayDataContainer) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: XRayDataContainer
+        :returns:
+
+        """
         super().__init__(data_containter, e_min=0.3, e_max=15)
 
 
 class NuStarObservation(XRayObservation):
-    def __init__(self, data_containter: XRayDataContainer):
+    def __init__(self, data_containter: XRayDataContainer) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: XRayDataContainer
+        :returns:
+
+        """
         super().__init__(data_containter, e_min=2, e_max=60)
 
 
 class PhotometricObservation(Observation):
-    def __init__(self, data_containter: PhotometricDataContainer, filter_set):
+    def __init__(self, data_containter: PhotometricDataContainer, filter_set) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: PhotometricDataContainer
+        :param filter_set:
+        :type filter_set:
+        :returns:
+
+        """
+
         obs = PhotometericObservation.from_hdf5(data_containter.observation)
 
         plugin = PhotometryLike(
@@ -148,14 +184,28 @@ class PhotometricObservation(Observation):
 
 
 class UVOTObservation(PhotometricObservation):
-    def __init__(self, data_containter: PhotometricDataContainer):
+    def __init__(self, data_containter: PhotometricDataContainer) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: PhotometricDataContainer
+        :returns:
+
+        """
         super().__init__(
             data_containter, filter_set=threeML_filter_library.Swift.UVOT
         )
 
 
 class GRONDObservation(PhotometricObservation):
-    def __init__(self, data_containter: PhotometricDataContainer):
+    def __init__(self, data_containter: PhotometricDataContainer) -> None:
+        """TODO describe function
+
+        :param data_containter:
+        :type data_containter: PhotometricDataContainer
+        :returns:
+
+        """
         super().__init__(
             data_containter, filter_set=threeML_filter_library.LaSilla.GROND
         )
@@ -175,6 +225,13 @@ _known_data_types = {
 
 class DataSet:
     def __init__(self, observations: List[Observation]) -> None:
+        """TODO describe function
+
+        :param observations:
+        :type observations: List[Observation]
+        :returns:
+
+        """
         self._observations: List[Observation] = observations
 
     @classmethod
@@ -214,4 +271,9 @@ class DataSet:
 
     @property
     def data_list(self) -> DataList:
+        """TODO describe function
+
+        :returns:
+
+        """
         return DataList(*[o.plugin for o in self._observations])
